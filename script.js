@@ -1,31 +1,34 @@
-let cartelas = [];
-let numerosSorteados = [];
+var cartelas = [];
+var numerosSorteados = [];
+var bolas = []
 
 function gerarCartela() {
   const nomeJogador = prompt("Digite seu nome:");
   const cartela = {
     nome: nomeJogador,
-    cartela: {
-      'B': gerarNumeros(1, 15),
-      'I': gerarNumeros(16, 30),
-      'N': gerarNumeros(31, 45, true),
-      'G': gerarNumeros(46, 60),
-      'O': gerarNumeros(61, 75)
-    }
+    cartela: [] 
   };
+  gerarNumeros(1, 15, cartela.cartela)
+  gerarNumeros(16, 30, cartela.cartela)
+  gerarNumeros(31, 45, cartela.cartela)
+  gerarNumeros(46, 60, cartela.cartela)
+  gerarNumeros(61, 75, cartela.cartela)
+
   cartelas.push(cartela);
   exibirCartela(cartela);
 }
 
-function gerarNumeros(inicio, fim, centro = false) {
-  const numeros = [];
-  while (numeros.length < 5) {
-    const numero = Math.floor(Math.random() * (fim - inicio + 1)) + inicio;
-    if (!numeros.includes(numero)) {
-      numeros.push(numero);
-    }
+function gerarNumeros(inicio, fim, cartela) {
+  
+
+  for(i = 0; i < 5; i++){
+    let numero
+    do {
+      numero = Math.floor(Math.random() * (fim - inicio + 1)) + inicio;
+    } while(cartela.includes(numero));
+    cartela.push(numero);
+    
   }
-  return numeros;
 }
 
 function exibirCartela(cartela) {
@@ -33,8 +36,33 @@ function exibirCartela(cartela) {
   const cartelaDiv = document.createElement('div');
   cartelaDiv.classList.add('cartela');
   cartelaDiv.innerHTML = `<h3>${cartela.nome}</h3>`;
-  for (let coluna in cartela.cartela) {
-    cartelaDiv.innerHTML += `<p>${coluna}: ${cartela.cartela[coluna].join(', ')}</p>`;
+
+  for (i = 0; i < 21; i += 5) {
+    let html = '<p>'
+    switch(i) {
+      case 0:
+        html += 'B: '
+        break
+      case 5:
+        html += 'I: '
+        break
+      case 10:
+        html += 'N: '
+        break
+      case 15:
+        html += 'G: '
+        break
+      case 20:
+        html += 'O: '
+        break
+    }
+    
+    for(j = 0; j < 5; j++){
+      html += cartela.cartela[i+j] + ', ';
+    }
+    
+    html += '</p>'
+    cartelaDiv.innerHTML += html;
   }
   cartelasDiv.appendChild(cartelaDiv);
 }
@@ -45,10 +73,20 @@ function iniciarJogo() {
     alert('É necessário ter pelo menos 2 cartelas para iniciar o jogo.');
     return;
   }
-if (intervalo) return
+
+  for(i = 1; i < 76; i++) {
+    bolas.push(i);
+  }
+
+  if (intervalo) return
 
  intervalo = setInterval(() => {
-    const numeroSorteado = sortearNumero();
+    if(bolas.length == 0){
+      clearInterval(intervalo);
+      alert("acabaram as bolas")
+    }
+
+    const numeroSorteado = bolas.splice(Math.floor(Math.random() * bolas.length), 1)[0];
     numerosSorteados.push(numeroSorteado);
     const listaNumeros = document.getElementById('listaNumeros');
     const novoItem = document.createElement('li');
@@ -60,27 +98,20 @@ if (intervalo) return
       clearInterval(intervalo);
       alert(`O vencedor é ${vencedor}! Parabéns!`);
     }
-  }, 3000); // Sorteia um número a cada 3 segundos
-}
-
-function sortearNumero() {
-  let numero;
-  do {
-    numero = Math.floor(Math.random() * 75) + 1;
-  } while (numerosSorteados.includes(numero));
-  return numero;
+  }, 500); // Sorteia um número a cada 3 segundos
 }
 
 function verificarVencedores(numeroSorteado) {
   for (const cartela of cartelas) {
-    const numerosCartela = Object.values(cartela.cartela).flat();
-    if (numerosCartela.includes(numeroSorteado)) {
-      const index = numerosCartela.indexOf(numeroSorteado);
-      numerosCartela.splice(index, 1);
-      if (numerosCartela.length === 0) {
-        return cartela.nome;
-      }
+
+
+    let numerosMarcados = cartela.cartela.filter(num => numerosSorteados.includes(num));
+
+    if(numerosMarcados.length == cartela.cartela.length) {
+      return cartela.nome
     }
+
   }
+  
   return null;
 }
