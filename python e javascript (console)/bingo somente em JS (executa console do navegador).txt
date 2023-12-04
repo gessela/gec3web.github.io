@@ -1,0 +1,79 @@
+// Função para gerar números aleatórios sem repetição em um intervalo específico
+function generateUniqueNumbers(min, max, quantity) {
+    const numbers = [];
+    while (numbers.length < quantity) {
+        const num = Math.floor(Math.random() * (max - min + 1)) + min;
+        if (!numbers.includes(num)) {
+            numbers.push(num);
+        }
+    }
+    return numbers;
+}
+
+// Função para criar uma cartela de bingo
+function generateBingoCard() {
+    const card = {
+        B: generateUniqueNumbers(1, 15, 5),
+        I: generateUniqueNumbers(16, 30, 5),
+        N: [], // Centro da cartela (N) começa vazio
+        G: generateUniqueNumbers(46, 60, 5),
+        O: generateUniqueNumbers(61, 75, 5),
+    };
+
+    // Preencher a coluna N com 4 números únicos
+    while (card.N.length < 4) {
+        const num = Math.floor(Math.random() * (45 - 31 + 1)) + 31;
+        if (!card.N.includes(num)) {
+            card.N.push(num);
+        }
+    }
+
+    return card;
+}
+
+// Função para verificar se um jogador venceu
+function checkWinner(playerCard, calledNumbers) {
+    return Object.values(playerCard).flat().every(num => calledNumbers.includes(num));
+}
+
+// Array para armazenar os jogadores e os números sorteados
+const players = [];
+const calledNumbers = [];
+
+// Função para iniciar o jogo
+function startGame() {
+    const numPlayers = parseInt(prompt("Quantos jogadores vão participar?"));
+    if (numPlayers < 2) {
+        alert("O jogo requer no mínimo 2 jogadores!");
+        return;
+    }
+
+    for (let i = 0; i < numPlayers; i++) {
+        const playerName = prompt(`Nome do jogador ${i + 1}:`);
+        const playerCard = generateBingoCard();
+        players.push({ name: playerName, card: playerCard });
+    }
+
+    while (true) {
+        const nextNumber = Math.floor(Math.random() * 75) + 1;
+        if (!calledNumbers.includes(nextNumber)) {
+            calledNumbers.push(nextNumber);
+            console.log(`Número sorteado: ${nextNumber}`);
+
+            for (const player of players) {
+                if (checkWinner(player.card, calledNumbers)) {
+                    console.log(`Parabéns, ${player.name}! Você venceu!`);
+                    return;
+                }
+            }
+        }
+
+        if (calledNumbers.length === 75) {
+            console.log("Todos os números foram sorteados. O jogo terminou em empate.");
+            return;
+        }
+    }
+}
+
+// Iniciar o jogo quando o usuário executar a função startGame()
+startGame();
