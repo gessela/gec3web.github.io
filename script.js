@@ -10,7 +10,7 @@ function gerarCartela() {
   };
   gerarNumeros(1, 15, cartela.cartela)
   gerarNumeros(16, 30, cartela.cartela)
-  gerarNumeros(31, 45, cartela.cartela)
+  gerarNumeros(31, 45, cartela.cartela, true)
   gerarNumeros(46, 60, cartela.cartela)
   gerarNumeros(61, 75, cartela.cartela)
 
@@ -18,10 +18,15 @@ function gerarCartela() {
   exibirCartela(cartela);
 }
 
-function gerarNumeros(inicio, fim, cartela) {
+function gerarNumeros(inicio, fim, cartela, centro = false) {
   
 
   for(i = 0; i < 5; i++){
+    if(centro && i == 2){
+      cartela.push('X')
+      continue
+    }
+
     let numero
     do {
       numero = Math.floor(Math.random() * (fim - inicio + 1)) + inicio;
@@ -93,7 +98,7 @@ function iniciarJogo() {
     novoItem.textContent = numeroSorteado;
     listaNumeros.appendChild(novoItem);
 
-    const vencedor = verificarVencedores(numeroSorteado);
+    const vencedor = verificarVencedores();
     if (vencedor) {
       clearInterval(intervalo);
       alert(`O vencedor é ${vencedor}! Parabéns!`);
@@ -101,13 +106,13 @@ function iniciarJogo() {
   }, 500); // Sorteia um número a cada 3 segundos
 }
 
-function verificarVencedores(numeroSorteado) {
+function verificarVencedores() {
   for (const cartela of cartelas) {
 
 
     let numerosMarcados = cartela.cartela.filter(num => numerosSorteados.includes(num));
 
-    if(numerosMarcados.length == cartela.cartela.length) {
+    if(numerosMarcados.length == cartela.cartela.length-1) {
       return cartela.nome
     }
 
